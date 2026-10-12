@@ -11,11 +11,12 @@ info:
     name: Attribution 4.0 International (CC BY 4.0)
     url: https://creativecommons.org/licenses/by/4.0/
   termsOfService: https://open-meteo.com/en/features#terms
+servers:
+  - url: https://api.open-meteo.com
 paths:
   /v1/forecast:
-    servers:
-      - url: https://api.open-meteo.com
     get:
+      operationId: getWeatherForecast
       tags:
       - Weather Forecast APIs
       summary: 7 day weather forecast for coordinates
