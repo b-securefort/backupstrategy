@@ -1,10 +1,10 @@
 openapi: 3.0.3
 info:
   title: Open-Meteo City Forecast API
-  description: A minimalist specification to retrieve weather forecast coordinates and data for a specific city using the Open-Meteo Geocoding service. No API key is required.
+  description: Minimalist specification to retrieve weather forecast coordinates and data for a specific city.
   version: 1.0.0
 servers:
-  - url: https://geocoding-api.open-meteo.com
+  - url: https://open-meteo.com
     description: Open-Meteo Geocoding API Server
 paths:
   /v1/search:
@@ -15,7 +15,7 @@ paths:
       parameters:
         - name: name
           in: query
-          description: The name of the city you want to forecast (e.g., "London", "New York").
+          description: The name of the city you want to forecast.
           required: true
           schema:
             type: string
@@ -63,6 +63,6 @@ paths:
                         country:
                           type: string
         '400':
-          description: Bad request. Missing or invalid parameters.
+          description: Bad request.
         '500':
           description: Internal server error.
