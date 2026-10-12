@@ -1,0 +1,84 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Open-Meteo City Forecast API",
+    "description": "Minimalist specification to retrieve weather forecast data for a specific city.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://geocoding-api.open-meteo.com",
+      "description": "Open-Meteo Geocoding API Server"
+    }
+  ],
+  "paths": {
+    "/v1/search": {
+      "get": {
+        "summary": "Forecast by City Name",
+        "description": "Retrieves location and basic forecast metadata for a given city name.",
+        "operationId": "forecastByCity",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "The name of the city you want to forecast.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "description": "Maximum number of results to return.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response containing city forecast and coordinate details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "latitude": {
+                            "type": "number"
+                          },
+                          "longitude": {
+                            "type": "number"
+                          },
+                          "country": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request."
+          }
+        }
+      }
+    }
+  }
+}
