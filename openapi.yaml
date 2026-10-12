@@ -1,41 +1,39 @@
 openapi: 3.0.3
 info:
-  title: Open-Meteo City Forecast API
-  description: Minimalist specification to retrieve weather forecast coordinates and data for a specific city.
+  title: Open-Meteo City Weather Forecast
+  description: Get a 7-day weather forecast by city name.
   version: 1.0.0
+
 servers:
-  - url: https://open-meteo.com
-    description: Open-Meteo Geocoding API Server
+  - url: https://geocoding-api.open-meteo.com
+    description: Open-Meteo Geocoding API
+
 paths:
   /v1/search:
     get:
-      summary: Forecast by City Name
-      description: Retrieves location and basic forecast metadata for a given city name.
-      operationId: forecastByCity
+      operationId: getCityCoordinates
+      summary: Find a city
+      description: Resolve a city name to its latitude and longitude for weather forecasting.
       parameters:
         - name: name
           in: query
-          description: The name of the city you want to forecast.
           required: true
+          description: City name, for example London.
           schema:
             type: string
+          example: London
         - name: count
           in: query
-          description: Maximum number of results to return.
           required: false
+          description: Maximum number of matching cities.
           schema:
             type: integer
             default: 1
-        - name: language
-          in: query
-          description: Language for the result structures.
-          required: false
-          schema:
-            type: string
-            default: en
+            minimum: 1
+            maximum: 10
       responses:
         '200':
-          description: Successful response containing city forecast and coordinate details.
+          description: City search results
           content:
             application/json:
               schema:
@@ -46,23 +44,116 @@ paths:
                     items:
                       type: object
                       properties:
-                        id:
-                          type: integer
                         name:
                           type: string
                         latitude:
                           type: number
+                          format: double
                         longitude:
                           type: number
-                        elevation:
-                          type: number
-                        country_code:
+                          format: double
+                        country:
                           type: string
                         timezone:
                           type: string
-                        country:
-                          type: string
+                      required:
+                        - name
+                        - latitude
+                        - longitude
         '400':
-          description: Bad request.
-        '500':
-          description: Internal server error.
+          description: Invalid request
+
+  /forecast:
+    get:
+      servers:
+        - url: https://api.open-meteo.com/v1
+      operationId: getWeatherForecast
+      summary: Get a city weather forecast
+      description: Get a 7-day forecast using the coordinates returned by getCityCoordinates.
+      parameters:
+        - name: latitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+          description: Latitude returned by the city search.
+        - name: longitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+          description: Longitude returned by the city search.
+        - name: daily
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code
+            default: temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code
+        - name: forecast_days
+          in: query
+          required: true
+          schema:
+            type: integer
+            enum:
+              - 7
+            default: 7
+        - name: timezone
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - auto
+            default: auto
+      responses:
+        '200':
+          description: Seven-day weather forecast
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  latitude:
+                    type: number
+                  longitude:
+                    type: number
+                  timezone:
+                    type: string
+                  daily_units:
+                    type: object
+                    additionalProperties:
+                      type: string
+                  daily:
+                    type: object
+                    properties:
+                      time:
+                        type: array
+                        items:
+                          type: string
+                          format: date
+                      temperature_2m_max:
+                        type: array
+                        items:
+                          type: number
+                          nullable: true
+                      temperature_2m_min:
+                        type: array
+                        items:
+                          type: number
+                          nullable: true
+                      precipitation_probability_max:
+                        type: array
+                        items:
+                          type: integer
+                          nullable: true
+                      weather_code:
+                        type: array
+                        items:
+                          type: integer
+                          nullable: true
+        '400':
+          description: Invalid coordinates or forecast parameters
